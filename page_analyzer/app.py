@@ -24,7 +24,7 @@ def add_url():
 
     if not url or not validators.url(url) or len(url) > 255:
         flash('Invalid URL', 'error')
-        return render_template('index.html'), 422
+        return render_template('index.html')
 
     parsed_url = urlparse(url)
     normalized_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
