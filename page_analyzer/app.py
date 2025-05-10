@@ -1,6 +1,11 @@
-from flask import Flask, render_template
+from flask import (
+  Flask, render_template, request, redirect, url_for, flash
+)
 from dotenv import load_dotenv
 import os
+import validators
+from urllib.parse import urlparse
+from .db import get_connection
 
 load_dotenv()
 
@@ -11,3 +16,63 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.post('/urls')
+def add_url():
+    url = request.form.get('url')
+
+    if not url or not validators.url(url) or len(url) > 255:
+        flash('Invalid URL', 'error')
+        return render_template('index.html'), 422
+
+    parsed_url = urlparse(url)
+    normalized_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'SELECT id FROM urls WHERE name=%s', (normalized_url, )
+            )
+
+            exiting_url = cursor.fetchone()
+            if exiting_url:
+                flash('URL already exists', 'error')
+                return redirect(url_for('show_url', url_id=exiting_url[0]))
+
+            cursor.execute(
+                'INSERT INTO urls (name) VALUES (%s) RETURNING id',
+                (normalized_url, )
+            )
+            new_url_id = cursor.fetchone()[0]
+            flash('URL added successfully', 'success')
+            return redirect(url_for('show_url', url_id=new_url_id))
+
+
+@app.route('/urls')
+def list_urls():
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, name, created_at FROM urls ORDER BY created_at DESC
+                """
+            )
+            urls = cursor.fetchall()
+    return render_template('urls/index.html', urls=urls)
+
+
+@app.route('/urls/<int:url_id>')
+def show_url(url_id):
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'SELECT id, name, created_at FROM urls WHERE id = %s',
+                (url_id, )
+            )
+            url = cursor.fetchone()
+
+    if not url:
+        flash('URL not found', 'error')
+        return redirect(url_for('list_urls'))
+    return render_template('urls/show.html', url=url)

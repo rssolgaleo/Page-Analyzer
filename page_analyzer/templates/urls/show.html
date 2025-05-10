@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Информация о сайте</h1>
+<table data-test="url" class="table table-bordered">
+  <tr>
+    <th>ID</th>
+    <td>{{ url[0] }}</td>
+  </tr>
+  <tr>
+    <th>Имя</th>
+    <td>{{ url[1] }}</td>
+  </tr>
+  <tr>
+    <th>Создано</th>
+    <td>{{ url[2].strftime('%d.%m.%Y') }}</td>
+  </tr>
+</table>
+<a href="{{ url_for('list_urls') }}" class="btn btn-secondary">Назад к списку</a>
+{% endblock %}
