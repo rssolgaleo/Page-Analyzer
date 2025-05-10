@@ -23,7 +23,7 @@ def add_url():
     url = request.form.get('url')
 
     if not url or not validators.url(url) or len(url) > 255:
-        flash('Invalid URL', 'error')
+        flash('Invalid URL', 'danger')
         return render_template('index.html')
 
     parsed_url = urlparse(url)
