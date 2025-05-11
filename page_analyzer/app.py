@@ -6,6 +6,7 @@ import os
 import validators
 from urllib.parse import urlparse
 from .db import get_connection
+from datetime import datetime
 
 load_dotenv()
 
@@ -72,7 +73,29 @@ def show_url(url_id):
             )
             url = cursor.fetchone()
 
+            cursor.execute(
+                """
+                SELECT id, created_at FROM url_checks
+                WHERE url_id = %s ORDER BY created_at DESC
+                """,
+                (url_id, )
+            )
+            checks = cursor.fetchall()
+
     if not url:
         flash('URL not found', 'error')
         return redirect(url_for('list_urls'))
-    return render_template('urls/show.html', url=url)
+    return render_template('urls/show.html', url=url, checks=checks)
+
+
+@app.post('/urls/<int:url_id>/checks')
+def check_url(url_id):
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO checks (url_id) VALUES (%s) RETURNING id',
+                (url_id, datetime.now())
+            )
+            conn.commit()
+            flash('Проверка успешно добавлена', 'success')
+    return redirect(url_for('show_url', url_id=url_id))

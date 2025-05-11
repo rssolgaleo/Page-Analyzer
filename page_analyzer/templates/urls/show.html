@@ -1,20 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Информация о сайте</h1>
-<table data-test="url" class="table table-bordered">
-  <tr>
-    <th>ID</th>
-    <td>{{ url[0] }}</td>
-  </tr>
-  <tr>
-    <th>Имя</th>
-    <td>{{ url[1] }}</td>
-  </tr>
-  <tr>
-    <th>Создано</th>
-    <td>{{ url[2].strftime('%d.%m.%Y') }}</td>
-  </tr>
+<h1 class="mb-4">Информация о сайте</h1>
+
+<table data-test="url" class="table table-bordered mb-4">
+  <tbody>
+    <tr>
+      <th scope="row">ID</th>
+      <td>{{ url[0] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Имя</th>
+      <td>{{ url[1] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Создано</th>
+      <td>{{ url[2].strftime('%d.%m.%Y') }}</td>
+    </tr>
+  </tbody>
 </table>
-<a href="{{ url_for('list_urls') }}" class="btn btn-secondary">Назад к списку</a>
+
+<a href="{{ url_for('list_urls') }}" class="btn btn-secondary mb-4">← Назад к списку</a>
+
+<h2 class="mb-3">Проверки</h2>
+
+<form method="post" action="{{ url_for('check_url', url_id=url[0]) }}" class="mb-3">
+  <button type="submit" class="btn btn-primary">Запустить проверку</button>
+</form>
+
+<table class="table table-striped" data-test="checks">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Дата</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for check in checks %}
+    <tr>
+      <td>{{ check[0] }}</td>
+      <td>{{ check[1].strftime('%d.%m.%Y') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
