@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Список сайтов</h1>
-<table data-test="urls" class="table table-striped">
+<table data-test="urls" class="table table-bordered table-hover text-nowrap">
   <thead>
     <tr>
       <th>ID</th>
@@ -16,8 +16,8 @@
     <tr>
       <td>{{ url[0] }}</td>
       <td><a href="{{ url_for('show_url', url_id=url[0]) }}">{{ url[1] }}</a></td>
-      <td>{{ url[2] or '' }}</td>
-      <td>{{ url[3].strftime('%Y-%m-%d') if url[3] else '' }}</td>
+      <td>{{ url[2].strftime('%Y-%m-%d') if url[2] else '' }}</td>
+      <td>{{ url[3] or '' }}</td>
     </tr>
     {% endfor %}
   </tbody>  
