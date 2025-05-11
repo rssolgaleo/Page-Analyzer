@@ -97,7 +97,7 @@ def show_url(url_id):
     return render_template('urls/show.html', url=url, checks=checks)
 
 
-@app.post('/urls/<int:url_id>/checks')
+@app.route('/urls/<int:url_id>/checks', methods=['GET', 'POST'])
 def check_url(url_id):
     try:
         with get_connection() as conn:
@@ -105,8 +105,7 @@ def check_url(url_id):
                 cur.execute("SELECT name FROM urls WHERE id = %s", (url_id,))
                 row = cur.fetchone()
                 if not row:
-                    flash('URL не найден', 'danger')
-                    return redirect(url_for('list_urls'))
+                    return render_template('urls/404.html'), 404
                 url = row[0]
 
         response = requests.get(url, timeout=5)
