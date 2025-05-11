@@ -16,4 +16,4 @@ render-start:
 	gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
 
 lint:
-	flake8 page_analyzer
+	uv run flake8 page_analyzer
