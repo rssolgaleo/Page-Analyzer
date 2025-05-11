@@ -60,8 +60,8 @@ def list_urls():
             cursor.execute(
                 """
                 SELECT urls.id, urls.name,
-                MAX(url_checks.created_at) AS last_check,
                 MAX(url_checks.status_code) AS status_code
+                MAX(url_checks.created_at) AS last_check
                 FROM urls
                 LEFT JOIN url_checks ON urls.id = url_checks.url_id
                 GROUP BY urls.id
