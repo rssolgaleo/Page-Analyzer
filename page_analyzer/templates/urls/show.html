@@ -47,7 +47,7 @@
       <td>{{ check[3] or ''}}</td>
       <td>{{ check[2] or '' }}</td>
       <td>{{ check[4] or '' }}</td>
-      <td>{{ check[5].strftime('%d.%m.%Y')}}</td>
+      <td>{{ check[5].strftime('%Y-%m-%d') if url[1] else ''}}</td>
     </tr>
     {% endfor %}
   </tbody>
