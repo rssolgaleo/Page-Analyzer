@@ -130,14 +130,14 @@ def check_url(url_id):
                 cur.execute(
                     '''
                     INSERT INTO url_checks
-                    (url_id, status_code, h1, title, description, created_at)
+                    (url_id, status_code, title, h1, description, created_at)
                     VALUES (%s, %s, %s, %s, %s, %s)
                     ''',
                     (
                         url_id,
                         status_code,
-                        h1_text,
                         title_text,
+                        h1_text,
                         description,
                         datetime.now()
                     )
