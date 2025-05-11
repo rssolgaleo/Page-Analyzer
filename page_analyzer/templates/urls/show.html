@@ -32,6 +32,7 @@
   <thead>
     <tr>
       <th>ID</th>
+      <th>Код ответа</th>
       <th>Дата</th>
     </tr>
   </thead>
@@ -39,7 +40,8 @@
     {% for check in checks %}
     <tr>
       <td>{{ check[0] }}</td>
-      <td>{{ check[1].strftime('%d.%m.%Y') }}</td>
+      <td>{{ check[1] or '—' }}</td>
+      <td>{{ check[2].strftime('%d.%m.%Y') }}</td>
     </tr>
     {% endfor %}
   </tbody>
