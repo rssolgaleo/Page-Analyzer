@@ -142,6 +142,7 @@ def check_url(url_id):
                         datetime.now()
                     )
                 )
+
                 conn.commit()
 
         flash('Страница успешно проверена', 'success')
