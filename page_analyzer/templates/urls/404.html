@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-lg mt-3">
+  <h1>Страница не найдена</h1>
+  <p>Здесь нет того, что вы ищете</p>
+  <a href="{{ url_for('list_urls') }}">Вернуться на главному</a>
+</div>
+{% endblock %}

@@ -82,6 +82,9 @@ def show_url(url_id):
             )
             url = cursor.fetchone()
 
+            if not url:
+                return render_template('urls/404.html'), 404
+
             cursor.execute(
                 """
                 SELECT id, status_code, title, h1, description, created_at
