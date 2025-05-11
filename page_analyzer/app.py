@@ -9,6 +9,7 @@ from .db import get_connection
 from datetime import datetime
 import requests
 from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -26,7 +27,7 @@ def add_url():
     url = request.form.get('url')
 
     if not url or not validators.url(url) or len(url) > 255:
-        flash('Invalid URL', 'danger')
+        flash('Некорректный URL', 'danger')
         return render_template('index.html')
 
     parsed_url = urlparse(url)
@@ -40,7 +41,7 @@ def add_url():
 
             exiting_url = cursor.fetchone()
             if exiting_url:
-                flash('URL already exists', 'error')
+                flash('Страница уже существует', 'info')
                 return redirect(url_for('show_url', url_id=exiting_url[0]))
 
             cursor.execute(
@@ -48,7 +49,7 @@ def add_url():
                 (normalized_url, )
             )
             new_url_id = cursor.fetchone()[0]
-            flash('URL added successfully', 'success')
+            flash('Страница успешно добавлена', 'success')
             return redirect(url_for('show_url', url_id=new_url_id))
 
 
@@ -83,16 +84,13 @@ def show_url(url_id):
 
             cursor.execute(
                 """
-                SELECT id, status_code, created_at FROM url_checks
+                SELECT id, status_code, title, h1, description, created_at
+                FROM url_checks
                 WHERE url_id = %s ORDER BY created_at DESC
                 """,
                 (url_id, )
             )
             checks = cursor.fetchall()
-
-    if not url:
-        flash('URL not found', 'error')
-        return redirect(url_for('list_urls'))
     return render_template('urls/show.html', url=url, checks=checks)
 
 
@@ -112,18 +110,39 @@ def check_url(url_id):
         response.raise_for_status()
         status_code = response.status_code
 
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        h1 = soup.find('h1')
+        title = soup.find('title')
+        description_tag = soup.find('meta', attrs={'name': 'description'})
+
+        h1_text = h1.text.strip() if h1 else None
+        title_text = title.text.strip() if title else None
+        if description_tag and description_tag.has_attr('content'):
+            description = description_tag['content'].strip()
+        else:
+            description = None
+
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     '''
-                    INSERT INTO url_checks (url_id, status_code, created_at)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO url_checks
+                    (url_id, status_code, h1, title, description, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     ''',
-                    (url_id, status_code, datetime.now())
+                    (
+                        url_id,
+                        status_code,
+                        h1_text,
+                        title_text,
+                        description,
+                        datetime.now()
+                    )
                 )
                 conn.commit()
 
-        flash('Проверка успешно выполнена', 'success')
+        flash('Страница успешно проверена', 'success')
 
     except RequestException:
         flash('Произошла ошибка при проверке', 'danger')
